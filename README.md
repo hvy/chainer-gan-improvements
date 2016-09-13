@@ -15,3 +15,18 @@ Comparison of random samples created by generators with and without minibatch di
 <img src="./samples/mnist.png" width="256px"/>
 
 
+## Run
+
+### Train
+
+```shell
+python train.py --minibatch-discrimination --out-generator-filename ./trained/generator.model --gpu 0
+```
+
+### Generate Images
+
+Generate sample images from random noises using any of the trained models.
+
+```shell
+python sample.py --in-generator-filename ./trained/generator_mbd.model --out-filename sample.png
+```
