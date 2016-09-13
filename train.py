@@ -33,9 +33,14 @@ if __name__ == '__main__':
     max_epochs = args.max_epochs
     batch_size = args.batch_size
 
+    if gpu >= 0:
+        xp = cuda.cupy
+    else:
+        xp = np
+
     train, _ = datasets.get_mnist(withlabel=False, ndim=2)
     train = [resize(t, (32, 32)) for t in train]
-    train = np.asarray(train)
+    train = xp.asarray(train)
 
     train_size = train.shape[0]
     in_shape = train.shape[1:]
@@ -51,9 +56,8 @@ if __name__ == '__main__':
     if gpu >= 0:
         cuda.check_cuda_available()
         cuda.get_device(gpu).use()
-        xp = cuda.cupy
-    else:
-        xp = np
+        generator.to_gpu()
+        discriminator.to_gpu()
 
     for epoch in range(max_epochs):
 

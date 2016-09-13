@@ -37,14 +37,14 @@ class MinibatchDiscrimination(Chain):
         print('diff.shape', diff.shape)
 
         xp = chainer.cuda.get_array_module()
-        eps = F.expand_dims(xp.eye(x.shape[0], dtype=xp.float32), axis=1)
+        eps = F.expand_dims(xp.eye(x.data.shape[0], dtype=xp.float32), 1)
         sum_diff = F.sum(abs(diff), axis=2)
         sum_diff, eps = F.broadcast(sum_diff, eps)
         abs_diff = sum_diff + eps
 
         print('abs_diff.shape', abs_diff.shape)
 
-        minibatch_features = F.sum(F.exp(-abs_diff), axis=2)
+        minibatch_features = F.sum(F.exp(-abs_diff), 2)
 
         print('x.shape', x.shape)
         print('minibatch_features.shape', minibatch_features.shape)
