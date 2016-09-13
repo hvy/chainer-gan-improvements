@@ -4,7 +4,7 @@ Chainer implementations of some of the techniques presented in the paper Improve
 
 ## Minibatch Discrimination
 
-Comparison of random samples created by generators with and without minibatch discrimination. The generators were trained for 100 epochs with 60000 images.
+Comparison of random samples created by generators with and without minibatch discrimination. The generators were trained for 100 epochs with 60000 images each. Notice that the generator has started to collpase for the regular GAN as some of the samples are almost identical. This is not the case with the improvemed GAN.
 
 ### GAN with Minibatch Discrimination
 
