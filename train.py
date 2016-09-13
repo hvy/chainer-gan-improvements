@@ -19,6 +19,7 @@ def parse_args():
     parser.add_argument('--n-z', type=int, default=10)
     parser.add_argument('--max-epochs', type=int, default=100)
     parser.add_argument('--batch-size', type=int, default=128)
+    parser.add_argument('--minibatch-discrimination', action='store_true', default=True)
     parser.add_argument('--out-generator-filename', type=str, default='./generator.model')
     return parser.parse_args()
 
@@ -36,6 +37,7 @@ if __name__ == '__main__':
     max_epochs = args.max_epochs
     batch_size = args.batch_size
     out_generator_filename = args.out_generator_filename
+    minibatch_discrimination = args.minibatch_discrimination
 
     # Prepare the training data
     train, _ = datasets.get_mnist(withlabel=False, ndim=2)
@@ -70,12 +72,12 @@ if __name__ == '__main__':
             # Forward
             zs = xp.random.uniform(-1, 1, (batch_size, n_z)).astype(xp.float32)
             x_fake = generator(zs)
-            y_fake = discriminator(x_fake)
+            y_fake = discriminator(x_fake, minibatch_discrimination=minibatch_discrimination)
             x_real = xp.zeros((batch_size, *im_shape), dtype=xp.float32)
             for xi in range(len(x_real)):
                 x_real[xi] = xp.array(train[np.random.randint(train_size)])
             x_real = xp.expand_dims(x_real, 1)  # Grayscale channel axis
-            y_real = discriminator(x_real)
+            y_real = discriminator(x_real, minibatch_discrimination=minibatch_discrimination)
 
             # Losses
             generator_loss = F.softmax_cross_entropy(y_fake, xp.ones(batch_size, dtype=xp.int32))

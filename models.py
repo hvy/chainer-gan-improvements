@@ -25,10 +25,7 @@ class MinibatchDiscrimination(Chain):
 
     def __call__(self, x):
         minibatch_size = x.shape[0]
-
-        h = self.t(x)
-
-        activation = F.reshape(h, (-1, self.n_kernels, self.kernel_dim))
+        activation = F.reshape(self.t(x), (-1, self.n_kernels, self.kernel_dim))
         activation_ex = F.expand_dims(activation, 3)
         activation_ex_t = F.expand_dims(F.transpose(activation, (1, 2, 0)), 0)
         activation_ex, activation_ex_t = F.broadcast(activation_ex, activation_ex_t)
@@ -42,7 +39,6 @@ class MinibatchDiscrimination(Chain):
         abs_diff = sum_diff + eps
 
         minibatch_features = F.sum(F.exp(-abs_diff), 2)
-
         return F.concat((x, minibatch_features), axis=1)
 
 
@@ -100,5 +96,4 @@ class Discriminator(Chain):
             h = F.leaky_relu(self.fc5(h))
 
         h = self.fc6(h)
-
         return h
