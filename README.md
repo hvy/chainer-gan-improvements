@@ -1,4 +1,4 @@
-# Improving Techniques for Training GANs
+# Improved Techniques for Training GANs
 
 Chainer implementations of some of the techniques presented in the paper Improved Techniques for Training GANs [https://arxiv.org/abs/1606.03498](https://arxiv.org/abs/1606.03498) on the MNIST dataset.
 
