@@ -4,7 +4,7 @@ Chainer implementations of some of the techniques presented in the paper Improve
 
 ## Minibatch Discrimination
 
-Comparison of random samples created by generators with and without minibatch discrimination. The generators were trained for 100 epochs with 60000 images each. Notice that the generator has started to collpase for the regular GAN as some of the samples are almost identical. This is not the case with the improvemed GAN.
+Comparison of random samples created by generators with and without minibatch discrimination. The generators were trained for 100 epochs with 60000 images each. Notice that the generator has started to collpase for the regular GAN as some of the samples are almost identical. This is not the case for the improvemed GAN.
 
 ### GAN with Minibatch Discrimination
 
@@ -19,7 +19,7 @@ Comparison of random samples created by generators with and without minibatch di
 
 ### Train
 
-```shell
+```bash
 python train.py --minibatch-discrimination --out-generator-filename ./trained/generator.model --gpu 0
 ```
 
@@ -27,6 +27,6 @@ python train.py --minibatch-discrimination --out-generator-filename ./trained/ge
 
 Generate sample images from random noises using any of the trained models.
 
-```shell
+```bash
 python sample.py --in-generator-filename ./trained/generator_mbd.model --out-filename sample.png
 ```
