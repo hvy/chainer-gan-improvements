@@ -6,6 +6,12 @@ Chainer implementation of some of the techniques presented in the paper Improved
 
 Comparison of random samples created by generators with and without minibatch discrimination. The generators were trained for 100 epochs with 60000 images.
 
-<img src="./samples/mnist_mbd.png" width="256px"/> <img src="./samples/mnist.png" width="256px"/>
+### GAN with Minibatch Discrimination
+
+<img src="./samples/mnist_mbd.png" width="256px"/>
+
+### GAN
+
+<img src="./samples/mnist.png" width="256px"/>
 
 
