@@ -63,7 +63,7 @@ class Generator(Chain):
         h = F.relu(self.bn1(self.dc1(h), test=test))
         h = F.relu(self.bn2(self.dc2(h), test=test))
         h = F.relu(self.bn3(self.dc3(h), test=test))
-        h = self.dc4(h)
+        h = F.sigmoid(self.dc4(h))
         return h
 
 
