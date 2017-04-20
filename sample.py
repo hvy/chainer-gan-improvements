@@ -5,15 +5,9 @@ from models import Generator
 import plot
 
 
-# Resize the MNIST dataset to 32x32 images for convenience
-# since the generator will create images with dimensions
-# of powers of 2 (doubling upsampling in each deconvolution).
-im_shape = (32, 32)
-
-
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n-z', type=int, default=10)
+    parser.add_argument('--n-z', type=int, default=100)
     parser.add_argument('--n-samples', type=int, default=128)
     parser.add_argument('--in-generator-filename', type=str, default='generator.model')
     parser.add_argument('--out-filename', type=str, default='sample.png')

@@ -18,8 +18,8 @@ def convdim(dims, scale, n):
 class MinibatchDiscrimination(Chain):
     def __init__(self, in_shape, n_kernels, kernel_dim):
         super(MinibatchDiscrimination, self).__init__(
-            t=L.Linear(in_shape, n_kernels*kernel_dim)
-        )
+            t=L.Linear(in_shape, n_kernels*kernel_dim))
+
         self.n_kernels = n_kernels
         self.kernel_dim = kernel_dim
 
@@ -43,57 +43,43 @@ class MinibatchDiscrimination(Chain):
 
 
 class Generator(Chain):
-    def __init__(self, n_z, out_shape):
+    def __init__(self, nz):
         super(Generator, self).__init__(
-            fc0=L.Linear(n_z, lindim(out_shape, 2**4, 256)),
-            dc1=L.Deconvolution2D(256, 128, 4, stride=2, pad=1),
-            dc2=L.Deconvolution2D(128, 64, 4, stride=2, pad=1),
-            dc3=L.Deconvolution2D(64, 32, 4, stride=2, pad=1),
-            dc4=L.Deconvolution2D(32, 1, 4, stride=2, pad=1),
-            bn0=L.BatchNormalization(lindim(out_shape, 2**4, 256)),
-            bn1=L.BatchNormalization(128),
-            bn2=L.BatchNormalization(64),
-            bn3=L.BatchNormalization(32)
-        )
-        self.out_shape = out_shape
+            fc=L.Linear(nz, 7*7*64),
+            dc1=L.Deconvolution2D(64, 32, 4, stride=2, pad=1),
+            dc2=L.Deconvolution2D(32, 1, 4, stride=2, pad=1),
+            bn=L.BatchNormalization(32))
 
     def __call__(self, z, test=False):
-        h = F.relu(self.bn0(self.fc0(z), test=test))
-        h = F.reshape(h, ((z.shape[0],) + convdim(self.out_shape, 2**4, 256)))
-        h = F.relu(self.bn1(self.dc1(h), test=test))
-        h = F.relu(self.bn2(self.dc2(h), test=test))
-        h = F.relu(self.bn3(self.dc3(h), test=test))
-        h = F.sigmoid(self.dc4(h))
+        h = F.relu(self.fc(z))
+        h = F.reshape(h, (h.shape[0], 64, 7, 7))
+        h = F.relu(self.bn(self.dc1(h), test=test))
+        h = F.sigmoid(self.dc2(h))
         return h
 
 
 class Discriminator(Chain):
-    def __init__(self, in_shape):
+    def __init__(self, mbd=True):
         super(Discriminator, self).__init__(
-            c0=L.Convolution2D(1, 32, 4, stride=2, pad=1),
-            c1=L.Convolution2D(32, 64, 4, stride=2, pad=1),
-            c2=L.Convolution2D(64, 128, 4, stride=2, pad=1),
-            c3=L.Convolution2D(128, 256, 4, stride=2, pad=1),
-            fc4=L.Linear(lindim(in_shape, 2**4, 256), 512),
-            mbd=MinibatchDiscrimination(512, 32, 8),
-            fc5=L.Linear(512, 512+32),  # Alternative to minibatch discrimination
-            fc6=L.Linear(512+32, 2),
+            c1=L.Convolution2D(1, 32, 4, stride=2, pad=1),
+            c2=L.Convolution2D(32, 64, 4, stride=2, pad=1),
+            fc1=L.Linear(7*7*64, 64),
+            fc3=L.Linear(64+16, 1),
             bn1=L.BatchNormalization(64),
-            bn2=L.BatchNormalization(128),
-            bn3=L.BatchNormalization(256)
-        )
+            bn2=L.BatchNormalization(64),
+            bn3=L.BatchNormalization(64+16))
 
-    def __call__(self, x, minibatch_discrimination=True, test=False):
-        h = F.leaky_relu(self.c0(x))
-        h = F.leaky_relu(self.bn1(self.c1(h), test=test))
-        h = F.leaky_relu(self.bn2(self.c2(h), test=test))
-        h = F.leaky_relu(self.bn3(self.c3(h), test=test))
-        h = self.fc4(h)
-
-        if minibatch_discrimination:
-            h = self.mbd(h)
+        if mbd:
+            self.add_link('fc2', MinibatchDiscrimination(64, 16, 8))
         else:
-            h = F.leaky_relu(self.fc5(h))
+            self.add_link('fc2', L.Linear(64, 64+16))
 
-        h = self.fc6(h)
+    def __call__(self, x, test=False):
+        h = F.leaky_relu(self.c1(x))
+        h = F.leaky_relu(self.bn1(self.c2(h), test=test))
+        h = F.leaky_relu(self.bn2(self.fc1(h), test=test))
+        h = F.leaky_relu(self.bn3(self.fc2(h), test=test))
+        h = self.fc3(h)
+        # Skip sigmoid() in case we are computing the loss with softplus
+        # h = F.sigmoid(h)
         return h
